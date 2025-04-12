@@ -1,0 +1,139 @@
+﻿@using EmployeeStore.Core.Models
+@model IEnumerable<Employee>
+
+
+@if (TempData["ErrorDetails"] is IList<string> errors && errors.Any())
+{
+	<div class="alert alert-danger" style="word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">
+		<h4>Processing completed with @errors.Count error(s):</h4>
+		<ul>
+			@foreach (var error in errors)
+			{
+				<li style="word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">
+					@error
+				</li>
+			}
+		</ul>
+	</div>
+}
+
+@if (TempData["Success"] != null)
+{
+	<div class="alert alert-success">
+		@TempData["Success"]
+	</div>
+}
+
+<form asp-action="UploadCsv" enctype="multipart/form-data">
+	<input type="file" name="file" accept=".csv" />
+	<button type="submit">Upload CSV</button>
+</form>
+
+
+<div id="employeeTable" class="table-responsive"></div>
+
+
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+
+		//defined data
+		var tableData = @Html.Raw(Json.Serialize(Model));
+
+
+		// Table initialization here
+		var table = new Tabulator("#employeeTable", {
+			data: tableData,           //load row data from array
+			layout: "fitColumns",      //fit columns to width of table
+			index: "id",               //unique identifier for each row
+			editable: true,			   //enables editing
+			responsiveLayout: "hide",  //hide columns that don't fit on the table
+			history: true,             //allow undo and redo actions on the table
+			pagination: "local",       //paginate the data
+			paginationSize: 24,         //allow 24 rows per page of data
+			paginationCounter: "rows", //display count of paginated rows in footer
+			movableColumns: true,      //allow column order to be changed
+			columnDefaults: {
+				tooltip: true,         //show tool tips on cells
+			},
+			columns: [                 //defined table columns
+				{ title: "ID", field: "id", visible: false },
+				{ title: "Payroll #", field: "payrollNumber", editor: "input", validator: ["required", "unique"], headerFilter: "input", width: 95 },
+				{ title: "Forenames", field: "forenames", editor: "input", validator: "required", headerFilter: "input" },
+				{ title: "Surname", field: "surname", editor: "input", validator: "required", headerFilter: "input" },
+				{ title: "Birth Date", field: "dateOfBirth", editor: "input", validator: "required", headerFilter: "input", width: 110 },
+				{ title: "Telephone", field: "telephone", editor: "input", headerFilter: "input", width: 140 },
+				{ title: "Mobile", field: "mobile", editor: "input", headerFilter: "input", width: 140 },
+				{ title: "Address", field: "address", editor: "input", headerFilter: "input" },
+				{ title: "Address2", field: "address2", editor: "input", headerFilter: "input" },
+				{ title: "Postcode", field: "postcode", editor: "input", headerFilter: "input", width: 100 },
+				{ title: "Email", field: "emailHome", editor: "input", headerFilter: "input" },
+				{ title: "Start Date", field: "startDate", editor: "input", validator: "required", headerFilter: "input", width: 110 },
+				{
+					// Delete Action method
+					title: "Delete", formatter: "buttonCross", width: 100, align: "center", hozAlign: "center",
+					cellClick: function (e, cell) {
+						const rowData = cell.getRow().getData();
+						fetch("/Employee/Delete", {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify(rowData)
+						}).then(res => {
+							if (res.ok) {
+								alert("Employee with Payroll number : " + rowData.payrollNumber + " deleted successfully!");
+								cell.getRow().delete();
+							} else {
+								alert("Delete failed.");
+							}
+						});
+					}
+				},
+			]
+		});
+
+
+		// Update Action method
+		table.on("cellEdited", function (cell) {
+			var rowData = cell.getRow().getData();
+
+			fetch("/Employee/Update", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(rowData)
+			})
+				.then(function (response) {
+					if (!response.ok) {
+						alert("Update failed.");						
+					}
+					else {
+						alert("Employee with Payroll number: " + rowData.payrollNumber + " updated successfully!");
+					}
+				})
+				.catch(function (error) {
+					alert("Update error: " + error);
+					table.updateData([rowData]); // Revert changes
+				});
+		});
+
+	});
+</script>
+
+<style>
+	#employeeTable {
+		margin: 20px 0;
+		border: 1px solid #ddd;
+	}
+
+	.tabulator .tabulator-row:nth-child(odd) {
+		background-color: #f4f4f4;
+	}
+
+	.tabulator .tabulator-row:hover {
+		background-color: #d0e7ff !important;
+	}
+
+	.tabulator-cell.tabulator-validation-fail {
+		background-color: #ffe6e6 !important;
+		border: 1px solid #ff8080 !important;
+	}
+</style>
