@@ -68,7 +68,7 @@ EmployeeStore.sln
 └── tests/                                     # Dedicated Test Library
     └── EmployeeStore.Tests/                   # Controllers, Services, Repositories
 ```
-- Clean separation using Repository and Service layers
+- Clean separation using Infrastructure and Service layers
 - Dependency Injection used to register services
 - UI powered by Tabulator.js for advanced grid interactions
 
