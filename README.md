@@ -1,5 +1,4 @@
-
-![📁Employee_Store](https://github.com/user-attachments/assets/6cc51569-131a-4a0a-be93-623248873ba0)
+![Employee_Store](https://github.com/user-attachments/assets/7c1d4931-928c-4635-a781-a48f77c816a0)
 
 # Employee Store 📋
 
