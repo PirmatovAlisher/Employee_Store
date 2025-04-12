@@ -65,7 +65,7 @@ EmployeeStore.sln
 │   ├── EmployeeStore.Services/                # Employee Service, Parser, CsvMapping 
 │   ├── EmployeeStore.Infrastructure.MsSql/    # EF Core DB context, repositories
 │   └── EmployeeStore.Web/                     # MVC controllers, views, and UI logic
-└── tests/  (xUnit)                            # Dedicated Test Library
+└── tests/                                     # Dedicated Test Library
     └── EmployeeStore.Tests/                   # Controllers, Services, Repositories
 ```
 - Clean separation using Repository and Service layers
